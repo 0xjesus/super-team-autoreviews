@@ -5,30 +5,25 @@ import { ReviewSchema, type ReviewOutput } from "./schemas";
 import { SYSTEM_PROMPT, buildUserPrompt } from "./prompts";
 import type { KeyFile, FileTreeNode } from "../db/schema";
 
-// Create provider instances with explicit API keys
-const openaiProvider = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const googleProvider = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY,
-});
-
-// Model provider detection
-function getModelProvider(modelId: string): "openai" | "google" {
-  if (modelId.startsWith("gemini-")) {
-    return "google";
-  }
-  return "openai";
-}
-
-// Get the AI model instance based on provider
+// Get provider and model - created lazily to read env vars at runtime
 function getModel(modelId: string) {
-  const provider = getModelProvider(modelId);
-  if (provider === "google") {
-    return googleProvider(modelId);
+  if (modelId.startsWith("gemini-")) {
+    // Use GEMINI_API_KEY (the one the user has configured)
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY environment variable is not set");
+    }
+    const provider = createGoogleGenerativeAI({ apiKey });
+    return provider(modelId);
   }
-  return openaiProvider(modelId);
+
+  // OpenAI
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY environment variable is not set");
+  }
+  const provider = createOpenAI({ apiKey });
+  return provider(modelId);
 }
 
 export interface BountyContext {
@@ -100,11 +95,8 @@ export async function generateReview(
     }
   );
 
-  // Default model - Use Gemini as fallback since it's more widely configured
-  const DEFAULT_MODEL = process.env.OPENAI_API_KEY?.startsWith("sk-") && !process.env.OPENAI_API_KEY?.startsWith("sk-or-")
-    ? "gpt-4o"
-    : "gemini-1.5-pro";
-  const modelId = process.env.AI_MODEL || DEFAULT_MODEL;
+  // Default to Gemini since GEMINI_API_KEY is configured
+  const modelId = process.env.AI_MODEL || "gemini-2.0-flash";
 
   const result = await generateObject({
     model: getModel(modelId),

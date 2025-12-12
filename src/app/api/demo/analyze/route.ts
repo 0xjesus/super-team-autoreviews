@@ -4,78 +4,6 @@ import { parseGitHubUrl } from "@/lib/github/client";
 import { fetchRepositoryData, fetchPRData } from "@/lib/github/fetcher";
 import { generateReview, type BountyContext, type CodeContext } from "@/lib/ai/reviewer";
 
-// Check if AI is configured
-function isAIConfigured(): boolean {
-  const openaiKey = process.env.OPENAI_API_KEY;
-  const geminiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
-
-  // Check for valid OpenAI key (starts with sk- but not sk-or-)
-  const hasValidOpenAI = openaiKey && openaiKey.startsWith("sk-") && !openaiKey.startsWith("sk-or-");
-
-  // Check for any Gemini key
-  const hasValidGemini = geminiKey && geminiKey.length > 10;
-
-  return Boolean(hasValidOpenAI || hasValidGemini);
-}
-
-// Generate a demo result when AI is not configured
-function generateDemoResult(githubInfo: { type: string; owner: string; repo: string; prNumber?: number }) {
-  return {
-    finalLabel: "High_Quality",
-    notes: `This is a DEMO result. Real AI analysis requires valid API keys. The repository ${githubInfo.owner}/${githubInfo.repo} would be analyzed for code quality, security, and requirement matching.`,
-    criteriaScore: 78,
-    qualityScore: 82,
-    totalScore: 80,
-    github: {
-      type: githubInfo.type,
-      owner: githubInfo.owner,
-      repo: githubInfo.repo,
-      prNumber: githubInfo.prNumber,
-      requirementMatch: {
-        score: 75,
-        matched: ["Code structure follows best practices", "Documentation present"],
-        missing: ["Unit tests coverage could be improved"],
-        evidence: [
-          {
-            requirement: "Code structure",
-            file: "src/index.ts",
-            explanation: "Well-organized module structure"
-          }
-        ],
-      },
-      codeQuality: {
-        score: 82,
-        strengths: ["Clean code organization", "Consistent naming conventions", "TypeScript usage"],
-        issues: [
-          {
-            severity: "minor",
-            description: "Some functions could benefit from additional comments",
-            file: "src/lib/utils.ts"
-          }
-        ],
-      },
-      security: {
-        score: 88,
-        findings: ["No hardcoded secrets detected", "Dependencies appear up to date"],
-        solanaSpecific: [],
-      },
-      completeness: {
-        score: 73,
-        implemented: ["Core functionality", "Basic error handling"],
-        missing: ["Integration tests", "CI/CD configuration"],
-      },
-      redFlags: [],
-    },
-    confidence: 0.85,
-    detailedNotes: "# Demo Review\n\nThis is a demonstration of the review output format. Configure valid API keys (OPENAI_API_KEY or GEMINI_API_KEY) to enable real AI analysis.",
-    suggestedLabels: ["high-quality"],
-    modelUsed: "demo-mode",
-    tokensUsed: 0,
-    processingTimeMs: 100,
-    isDemo: true,
-  };
-}
-
 // Input schema
 const AnalyzeRequestSchema = z.object({
   githubUrl: z.string().url(),
@@ -83,7 +11,6 @@ const AnalyzeRequestSchema = z.object({
   bountyDescription: z.string().optional(),
   requirements: z.array(z.string()).optional(),
   techStack: z.array(z.string()).optional(),
-  demoMode: z.boolean().optional(), // Force demo mode
 });
 
 // Earn-compatible label mapping
@@ -111,18 +38,6 @@ export async function POST(request: NextRequest) {
 
     // Parse the GitHub URL
     const githubInfo = parseGitHubUrl(data.githubUrl);
-
-    // If demo mode is explicitly requested or AI is not configured, return demo result
-    if (data.demoMode || !isAIConfigured()) {
-      const demoResult = generateDemoResult(githubInfo);
-      return NextResponse.json({
-        success: true,
-        evaluation: demoResult,
-        warning: data.demoMode
-          ? "Demo mode enabled. This shows example output format."
-          : "Running in demo mode. Configure valid OPENAI_API_KEY or GEMINI_API_KEY for real AI analysis.",
-      });
-    }
 
     // Build bounty context
     const bountyContext: BountyContext = {
