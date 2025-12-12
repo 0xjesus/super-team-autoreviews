@@ -8,13 +8,15 @@ import { z } from "zod";
 // Schema for creating a new submission
 const CreateSubmissionSchema = z.object({
   externalId: z.string().min(1),
-  listingId: z.string().min(1),
+  listingId: z.string().optional(), // Optional - defaults to manual-{timestamp}
   githubUrl: z.string().url(),
   // Bounty context (can be provided or fetched from listing)
   bountyTitle: z.string().optional(),
   bountyDescription: z.string().optional(),
   requirements: z.array(z.string()).optional(),
   techStack: z.array(z.string()).optional(),
+  // Optional model selection
+  model: z.string().optional(),
   // Whether to auto-trigger review
   triggerReview: z.boolean().default(true),
 });
@@ -80,17 +82,21 @@ export async function POST(request: NextRequest) {
     // Parse GitHub URL to determine type
     const githubInfo = parseGitHubUrl(data.githubUrl);
 
+    // Default listingId for manual submissions
+    const listingId = data.listingId || `manual-${Date.now()}`;
+
     // Create the submission
     const [submission] = await db
       .insert(submissions)
       .values({
         externalId: data.externalId,
-        listingId: data.listingId,
+        listingId,
         githubUrl: data.githubUrl,
         githubType: githubInfo.type,
         owner: githubInfo.owner,
         repo: githubInfo.repo,
         prNumber: githubInfo.prNumber,
+        bountyTitle: data.bountyTitle || null,
         status: "pending",
       })
       .returning();
@@ -106,7 +112,7 @@ export async function POST(request: NextRequest) {
       const [existingContext] = await db
         .select()
         .from(listingContexts)
-        .where(eq(listingContexts.listingId, data.listingId))
+        .where(eq(listingContexts.listingId, listingId))
         .limit(1);
 
       if (existingContext) {
@@ -120,7 +126,7 @@ export async function POST(request: NextRequest) {
       await db
         .insert(listingContexts)
         .values({
-          listingId: data.listingId,
+          listingId,
           title: bountyTitle,
           description: bountyDescription,
           requirements,
@@ -138,25 +144,33 @@ export async function POST(request: NextRequest) {
     }
 
     // Trigger review if requested
+    let reviewTriggered = false;
     if (data.triggerReview) {
-      await inngest.send({
-        name: "github/submission.received",
-        data: {
-          submissionId: submission.id,
-          externalId: submission.externalId,
-          listingId: submission.listingId,
-          githubUrl: submission.githubUrl,
-          bountyTitle,
-          bountyDescription,
-          requirements,
-          techStack,
-        },
-      });
+      try {
+        await inngest.send({
+          name: "github/submission.received",
+          data: {
+            submissionId: submission.id,
+            externalId: submission.externalId,
+            listingId,
+            githubUrl: submission.githubUrl,
+            bountyTitle,
+            bountyDescription,
+            requirements,
+            techStack,
+            model: data.model, // Pass selected model
+          },
+        });
+        reviewTriggered = true;
+      } catch (inngestError) {
+        // Inngest not configured - submission stays in pending
+        console.warn("Inngest not configured, submission will stay pending:", inngestError);
+      }
     }
 
     return NextResponse.json({
       submission,
-      reviewTriggered: data.triggerReview,
+      reviewTriggered,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

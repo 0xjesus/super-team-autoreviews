@@ -1,50 +1,47 @@
 @import "tailwindcss";
 
+/* Superteam / Solana Brand Colors */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 5.9% 10%;
-  --radius: 0.5rem;
-}
+  /* Core Superteam/Solana palette */
+  --st-purple: 289 100% 56%;       /* #DC1FFF - Purple Dino */
+  --st-purple-light: 271 60% 71%;  /* #8d70de - Blue Purple */
+  --st-green: 162 100% 50%;        /* #00FFA3 - Surge Green */
+  --st-blue: 199 100% 50%;         /* #00C2FF - Ocean Blue */
+  --st-dark: 240 20% 6%;           /* #0D0D14 - Deep dark */
+  --st-darker: 240 25% 4%;         /* #080810 - Deeper dark */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-  }
+  /* Gradient stops */
+  --gradient-start: #DC1FFF;
+  --gradient-mid: #8d70de;
+  --gradient-end: #00FFA3;
+
+  /* Dark theme by default for that premium feel */
+  --background: 240 20% 6%;
+  --foreground: 0 0% 98%;
+  --card: 240 15% 10%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 15% 10%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 289 100% 56%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 10% 15%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 10% 15%;
+  --muted-foreground: 240 5% 60%;
+  --accent: 162 100% 50%;
+  --accent-foreground: 240 20% 6%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 10% 18%;
+  --input: 240 10% 15%;
+  --ring: 289 100% 56%;
+  --radius: 0.75rem;
+
+  /* Score colors */
+  --score-excellent: 162 100% 50%;  /* Green */
+  --score-good: 199 100% 50%;       /* Blue */
+  --score-warning: 45 100% 60%;     /* Amber */
+  --score-bad: 0 84% 60%;           /* Red */
 }
 
 @theme inline {
@@ -80,4 +77,154 @@ body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Superteam gradient utilities */
+.gradient-text {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  position: relative;
+  background: hsl(var(--card));
+  border-radius: var(--radius);
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg,
+    hsl(var(--st-purple) / 0.15),
+    hsl(var(--st-purple-light) / 0.1),
+    hsl(var(--st-green) / 0.1)
+  );
+}
+
+.gradient-button {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid));
+  transition: all 0.3s ease;
+}
+
+.gradient-button:hover {
+  background: linear-gradient(135deg, var(--gradient-mid), var(--gradient-start));
+  transform: translateY(-1px);
+  box-shadow: 0 10px 40px -10px hsl(var(--st-purple) / 0.5);
+}
+
+/* Glow effects */
+.glow-purple {
+  box-shadow: 0 0 30px -5px hsl(var(--st-purple) / 0.4);
+}
+
+.glow-green {
+  box-shadow: 0 0 30px -5px hsl(var(--st-green) / 0.4);
+}
+
+/* Score badge colors */
+.score-excellent {
+  background: hsl(var(--score-excellent) / 0.15);
+  color: hsl(var(--score-excellent));
+  border-color: hsl(var(--score-excellent) / 0.3);
+}
+
+.score-good {
+  background: hsl(var(--score-good) / 0.15);
+  color: hsl(var(--score-good));
+  border-color: hsl(var(--score-good) / 0.3);
+}
+
+.score-warning {
+  background: hsl(var(--score-warning) / 0.15);
+  color: hsl(var(--score-warning));
+  border-color: hsl(var(--score-warning) / 0.3);
+}
+
+.score-bad {
+  background: hsl(var(--score-bad) / 0.15);
+  color: hsl(var(--score-bad));
+  border-color: hsl(var(--score-bad) / 0.3);
+}
+
+/* Animated background grid */
+.bg-grid {
+  background-image:
+    linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Pulse animation for live indicators */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 10px 2px currentColor;
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 20px 4px currentColor;
+  }
+}
+
+.pulse-live {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Loading skeleton shimmer */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 25%,
+    hsl(var(--muted-foreground) / 0.1) 50%,
+    hsl(var(--muted)) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }

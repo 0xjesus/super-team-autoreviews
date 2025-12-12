@@ -28,6 +28,9 @@ export const submissions = pgTable(
     prNumber: integer("pr_number"),
     defaultBranch: varchar("default_branch", { length: 100 }),
 
+    // Bounty info (denormalized for quick access)
+    bountyTitle: text("bounty_title"),
+
     // Status tracking
     status: varchar("status", { length: 50 }).default("pending").notNull(),
     errorMessage: text("error_message"),
