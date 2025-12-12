@@ -1,65 +1,167 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { GitBranch, Zap, Shield, BarChart } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-screen">
+      {/* Hero */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            AI-Powered GitHub
+            <br />
+            <span className="text-primary">Auto-Reviews</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+            Automated code review system for Superteam Earn. Analyze PRs and repositories
+            with AI-powered insights, security checks, and requirement matching.
           </p>
+          <div className="flex gap-4 justify-center">
+            <Link href="/dashboard">
+              <Button size="lg">Open Dashboard</Button>
+            </Link>
+            <a
+              href="https://github.com/superteamdao/earn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="outline" size="lg">
+                <GitBranch className="w-4 h-4 mr-2" />
+                View on GitHub
+              </Button>
+            </a>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+      </section>
+
+      {/* Features */}
+      <section className="py-16 px-4 bg-muted/50">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">Features</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <FeatureCard
+              icon={<Zap className="w-8 h-8" />}
+              title="Fast Analysis"
+              description="Powered by Inngest for async processing. Handle large repos without timeouts."
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <FeatureCard
+              icon={<Shield className="w-8 h-8" />}
+              title="Security Checks"
+              description="Detect hardcoded secrets, vulnerabilities, and Solana-specific security issues."
+            />
+            <FeatureCard
+              icon={<BarChart className="w-8 h-8" />}
+              title="Detailed Scoring"
+              description="Get scores for requirements, code quality, completeness, and security."
+            />
+            <FeatureCard
+              icon={<GitBranch className="w-8 h-8" />}
+              title="PR & Repo Support"
+              description="Review both pull requests and full repositories with context-aware analysis."
+            />
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* How it works */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <Step
+              number={1}
+              title="Submit URL"
+              description="Enter a public GitHub PR or repository URL along with bounty requirements."
+            />
+            <Step
+              number={2}
+              title="AI Analysis"
+              description="Our AI analyzes the code against requirements, checking quality and security."
+            />
+            <Step
+              number={3}
+              title="Get Results"
+              description="Receive a detailed score, labels, and actionable feedback for sponsors."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-16 px-4 bg-primary text-primary-foreground">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-4">Ready to automate your reviews?</h2>
+          <p className="text-lg opacity-90 mb-8 max-w-xl mx-auto">
+            Start using AI-powered code reviews for your Superteam Earn bounties today.
+          </p>
+          <Link href="/dashboard">
+            <Button size="lg" variant="secondary">
+              Get Started
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-8 px-4 border-t">
+        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-muted-foreground">
+            Built for Superteam Earn by the community
+          </p>
+          <div className="flex gap-6 text-sm text-muted-foreground">
+            <a href="https://earn.superteam.fun" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
+              Superteam Earn
+            </a>
+            <a href="https://github.com/superteamdao/earn" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
+              GitHub
+            </a>
+          </div>
+        </div>
+      </footer>
+    </main>
+  );
+}
+
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <div className="text-primary mb-2">{icon}</div>
+        <CardTitle className="text-lg">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <CardDescription>{description}</CardDescription>
+      </CardContent>
+    </Card>
+  );
+}
+
+function Step({
+  number,
+  title,
+  description,
+}: {
+  number: number;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="text-center">
+      <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold mx-auto mb-4">
+        {number}
+      </div>
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <p className="text-muted-foreground">{description}</p>
     </div>
   );
 }

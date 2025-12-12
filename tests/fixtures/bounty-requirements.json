@@ -1,0 +1,40 @@
+{
+  "tokenSwap": {
+    "title": "Build a Token Swap on Solana",
+    "description": "Create a decentralized token swap application using the Jupiter aggregator on Solana. The application should allow users to swap between different SPL tokens with the best available rates.",
+    "requirements": [
+      "Integrate Jupiter aggregator for token swaps",
+      "Support swapping between any SPL tokens",
+      "Display exchange rates before swap",
+      "Handle transaction errors gracefully",
+      "Add slippage tolerance settings",
+      "Include unit tests for core functionality"
+    ],
+    "techStack": ["TypeScript", "Solana", "Jupiter", "React", "Anchor"]
+  },
+  "nftMarketplace": {
+    "title": "NFT Marketplace MVP",
+    "description": "Build a basic NFT marketplace where users can list, buy, and sell NFTs. Focus on core functionality rather than advanced features.",
+    "requirements": [
+      "List NFTs for sale with custom pricing",
+      "Buy listed NFTs",
+      "Cancel listings",
+      "View all active listings",
+      "Track transaction history"
+    ],
+    "techStack": ["TypeScript", "Solana", "Metaplex", "React"]
+  },
+  "daoVoting": {
+    "title": "DAO Voting System",
+    "description": "Implement a simple DAO voting mechanism where token holders can create and vote on proposals.",
+    "requirements": [
+      "Create new proposals",
+      "Vote on active proposals",
+      "Weight votes by token holdings",
+      "Execute passed proposals",
+      "Set voting periods",
+      "Implement quorum requirements"
+    ],
+    "techStack": ["Rust", "Anchor", "Solana", "TypeScript"]
+  }
+}
