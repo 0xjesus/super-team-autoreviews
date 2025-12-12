@@ -97,6 +97,7 @@ export const reviews = pgTable(
     modelUsed: varchar("model_used", { length: 100 }),
     tokensUsed: integer("tokens_used"),
     processingTimeMs: integer("processing_time_ms"),
+    estimatedCost: decimal("estimated_cost", { precision: 10, scale: 6 }), // Cost in USD
 
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
@@ -151,19 +152,36 @@ export const analysisChunks = pgTable(
 );
 
 // Historical validations for accuracy tracking
-export const historicalValidations = pgTable("historical_validations", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  submissionId: uuid("submission_id").references(() => submissions.id),
+export const historicalValidations = pgTable(
+  "historical_validations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    submissionId: uuid("submission_id").references(() => submissions.id),
 
-  // Human decision
-  humanScore: integer("human_score"),
-  humanDecision: varchar("human_decision", { length: 50 }),
+    // AI review data
+    aiScore: integer("ai_score"),
+    aiLabel: varchar("ai_label", { length: 50 }),
 
-  // AI comparison
-  aiScore: integer("ai_score"),
+    // Human decision
+    humanScore: integer("human_score"),
+    humanLabel: varchar("human_label", { length: 50 }),
 
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+    // Accuracy metrics
+    scoreAccurate: boolean("score_accurate"), // Within tolerance
+    labelAccurate: boolean("label_accurate"), // Matches or adjacent
+    scoreDelta: integer("score_delta"), // AI - Human
+
+    // Model used for this review
+    modelUsed: varchar("model_used", { length: 100 }),
+
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("idx_validations_submission").on(table.submissionId),
+    index("idx_validations_created").on(table.createdAt),
+    index("idx_validations_model").on(table.modelUsed),
+  ]
+);
 
 // Relations
 export const submissionsRelations = relations(submissions, ({ one, many }) => ({

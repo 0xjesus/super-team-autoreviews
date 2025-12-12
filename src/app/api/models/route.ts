@@ -23,6 +23,21 @@ const GEMINI_MODELS = [
   { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", description: "Previous gen fast model", recommended: false, provider: "google" },
 ];
 
+// OpenRouter models - compatible with earn-agent infrastructure
+// These models are accessed via OpenRouter's unified API
+const OPENROUTER_MODELS = [
+  { id: "anthropic/claude-3.5-sonnet", name: "Claude 3.5 Sonnet", description: "Best for code understanding", recommended: true, provider: "openrouter", costPer1M: { input: 3.00, output: 15.00 } },
+  { id: "anthropic/claude-3-haiku", name: "Claude 3 Haiku", description: "Fast and affordable", recommended: false, provider: "openrouter", costPer1M: { input: 0.25, output: 1.25 } },
+  { id: "anthropic/claude-3-opus", name: "Claude 3 Opus", description: "Most capable Claude", recommended: false, provider: "openrouter", costPer1M: { input: 15.00, output: 75.00 } },
+  { id: "meta-llama/llama-3.1-70b-instruct", name: "Llama 3.1 70B", description: "Open source, great quality", recommended: false, provider: "openrouter", costPer1M: { input: 0.35, output: 0.40 } },
+  { id: "meta-llama/llama-3.1-8b-instruct", name: "Llama 3.1 8B", description: "Fast open source model", recommended: false, provider: "openrouter", costPer1M: { input: 0.055, output: 0.055 } },
+  { id: "mistralai/mistral-large", name: "Mistral Large", description: "Strong reasoning", recommended: false, provider: "openrouter", costPer1M: { input: 2.00, output: 6.00 } },
+  { id: "mistralai/codestral-latest", name: "Codestral", description: "Specialized for code", recommended: false, provider: "openrouter", costPer1M: { input: 0.30, output: 0.90 } },
+  { id: "deepseek/deepseek-chat", name: "DeepSeek Chat", description: "Very cost-effective", recommended: false, provider: "openrouter", costPer1M: { input: 0.14, output: 0.28 } },
+  { id: "deepseek/deepseek-coder", name: "DeepSeek Coder", description: "Code-specialized, cheap", recommended: false, provider: "openrouter", costPer1M: { input: 0.14, output: 0.28 } },
+  { id: "google/gemini-pro-1.5", name: "Gemini Pro 1.5 (OR)", description: "Via OpenRouter", recommended: false, provider: "openrouter", costPer1M: { input: 1.25, output: 5.00 } },
+];
+
 interface OpenAIModel {
   id: string;
   object: string;
@@ -107,6 +122,12 @@ export async function GET() {
       allModels.push(...GEMINI_MODELS);
     }
 
+    // Add OpenRouter models if API key is available
+    // OpenRouter is the preferred provider for earn-agent integration
+    if (process.env.OPENROUTER_API_KEY) {
+      allModels.push(...OPENROUTER_MODELS);
+    }
+
     // Sort: recommended first, then by provider, then by name
     allModels.sort((a, b) => {
       if (a.recommended && !b.recommended) return -1;
@@ -121,6 +142,7 @@ export async function GET() {
       providers: {
         openai: !!process.env.OPENAI_API_KEY,
         google: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY),
+        openrouter: !!process.env.OPENROUTER_API_KEY,
       },
     });
   } catch (error) {
@@ -131,6 +153,9 @@ export async function GET() {
     if (process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       fallbackModels.push(...GEMINI_MODELS);
     }
+    if (process.env.OPENROUTER_API_KEY) {
+      fallbackModels.push(...OPENROUTER_MODELS);
+    }
 
     return NextResponse.json({
       models: fallbackModels,
@@ -138,6 +163,7 @@ export async function GET() {
       providers: {
         openai: !!process.env.OPENAI_API_KEY,
         google: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY),
+        openrouter: !!process.env.OPENROUTER_API_KEY,
       },
     });
   }

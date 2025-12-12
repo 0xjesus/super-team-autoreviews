@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, reviews, submissions } from "@/lib/db";
 import { eq, desc, and, gte, lte } from "drizzle-orm";
 
-// GET /api/reviews - List reviews with filters
+// GET /api/reviews - List reviews with filters and full details
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "50", 10);
     const offset = parseInt(searchParams.get("offset") || "0", 10);
 
-    // Build query with joins
+    // Build query with joins - get ALL review fields
     let results = await db
       .select({
         review: reviews,
@@ -44,10 +44,40 @@ export async function GET(request: NextRequest) {
       results = results.filter((r) => r.review.labels?.includes(label));
     }
 
+    // Return full review data with all fields
     return NextResponse.json({
       reviews: results.map((r) => ({
-        ...r.review,
-        submission: r.submission,
+        id: r.review.id,
+        overallScore: r.review.overallScore,
+        confidence: r.review.confidence,
+        requirementMatchScore: r.review.requirementMatchScore,
+        codeQualityScore: r.review.codeQualityScore,
+        completenessScore: r.review.completenessScore,
+        securityScore: r.review.securityScore,
+        summary: r.review.summary,
+        detailedNotes: r.review.detailedNotes,
+        labels: r.review.labels,
+        redFlags: r.review.redFlags,
+        matchedRequirements: r.review.matchedRequirements,
+        missingRequirements: r.review.missingRequirements,
+        modelUsed: r.review.modelUsed,
+        tokensUsed: r.review.tokensUsed,
+        processingTimeMs: r.review.processingTimeMs,
+        estimatedCost: r.review.estimatedCost,
+        createdAt: r.review.createdAt,
+        submission: {
+          id: r.submission.id,
+          externalId: r.submission.externalId,
+          githubUrl: r.submission.githubUrl,
+          githubType: r.submission.githubType,
+          owner: r.submission.owner,
+          repo: r.submission.repo,
+          prNumber: r.submission.prNumber,
+          bountyTitle: r.submission.bountyTitle,
+          status: r.submission.status,
+          createdAt: r.submission.createdAt,
+          reviewedAt: r.submission.reviewedAt,
+        },
       })),
       pagination: {
         limit,

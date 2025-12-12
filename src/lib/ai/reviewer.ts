@@ -5,25 +5,91 @@ import { ReviewSchema, type ReviewOutput } from "./schemas";
 import { SYSTEM_PROMPT, buildUserPrompt } from "./prompts";
 import type { KeyFile, FileTreeNode } from "../db/schema";
 
-// Get provider and model - created lazily to read env vars at runtime
-function getModel(modelId: string) {
-  if (modelId.startsWith("gemini-")) {
-    // Use GEMINI_API_KEY (the one the user has configured)
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY environment variable is not set");
-    }
-    const provider = createGoogleGenerativeAI({ apiKey });
-    return provider(modelId);
-  }
+// Provider detection based on model ID prefix
+type AIProvider = "openai" | "gemini" | "openrouter" | "anthropic";
 
-  // OpenAI
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error("OPENAI_API_KEY environment variable is not set");
+function detectProvider(modelId: string): AIProvider {
+  if (modelId.startsWith("gemini-")) return "gemini";
+  if (modelId.startsWith("openrouter/")) return "openrouter";
+  if (modelId.startsWith("claude-")) return "anthropic";
+  // OpenRouter model format: provider/model-name
+  if (modelId.includes("/")) return "openrouter";
+  return "openai";
+}
+
+// Get provider and model - created lazily to read env vars at runtime
+// Supports: OpenAI, Gemini, OpenRouter (earn-agent compatible), Anthropic
+function getModel(modelId: string) {
+  const provider = detectProvider(modelId);
+
+  switch (provider) {
+    case "gemini": {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("GEMINI_API_KEY environment variable is not set");
+      }
+      const geminiProvider = createGoogleGenerativeAI({ apiKey });
+      return geminiProvider(modelId);
+    }
+
+    case "openrouter": {
+      // OpenRouter - compatible with earn-agent infrastructure
+      // Uses OpenAI-compatible API with different base URL
+      const apiKey = process.env.OPENROUTER_API_KEY;
+      if (!apiKey) {
+        throw new Error("OPENROUTER_API_KEY environment variable is not set. OpenRouter is required for earn-agent integration.");
+      }
+      const openrouterProvider = createOpenAI({
+        apiKey,
+        baseURL: "https://openrouter.ai/api/v1",
+        headers: {
+          "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://earn.superteam.fun",
+          "X-Title": "Superteam Earn Auto-Review",
+        },
+      });
+      // Remove 'openrouter/' prefix if present
+      const cleanModelId = modelId.replace(/^openrouter\//, "");
+      return openrouterProvider(cleanModelId);
+    }
+
+    case "anthropic": {
+      // Anthropic models via OpenRouter (earn-agent uses this pattern)
+      const apiKey = process.env.OPENROUTER_API_KEY || process.env.ANTHROPIC_API_KEY;
+      if (!apiKey) {
+        throw new Error("OPENROUTER_API_KEY or ANTHROPIC_API_KEY required for Claude models");
+      }
+      // Use OpenRouter for Anthropic models if OPENROUTER_API_KEY is set
+      if (process.env.OPENROUTER_API_KEY) {
+        const openrouterProvider = createOpenAI({
+          apiKey: process.env.OPENROUTER_API_KEY,
+          baseURL: "https://openrouter.ai/api/v1",
+        });
+        return openrouterProvider(`anthropic/${modelId}`);
+      }
+      // Direct Anthropic API would need @ai-sdk/anthropic
+      throw new Error("Direct Anthropic API not configured. Use OPENROUTER_API_KEY instead.");
+    }
+
+    default: {
+      // OpenAI direct
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        throw new Error("OPENAI_API_KEY environment variable is not set");
+      }
+      const openaiProvider = createOpenAI({ apiKey });
+      return openaiProvider(modelId);
+    }
   }
-  const provider = createOpenAI({ apiKey });
-  return provider(modelId);
+}
+
+// Export provider detection for use in UI
+export function getAvailableProviders(): { provider: AIProvider; configured: boolean }[] {
+  return [
+    { provider: "openai", configured: !!process.env.OPENAI_API_KEY },
+    { provider: "gemini", configured: !!process.env.GEMINI_API_KEY },
+    { provider: "openrouter", configured: !!process.env.OPENROUTER_API_KEY },
+    { provider: "anthropic", configured: !!process.env.OPENROUTER_API_KEY || !!process.env.ANTHROPIC_API_KEY },
+  ];
 }
 
 export interface BountyContext {
@@ -63,10 +129,51 @@ function fileTreeToString(nodes: FileTreeNode[], indent = ""): string {
   return result;
 }
 
+// Cost per 1M tokens (estimated, varies by model)
+// Includes OpenRouter models for earn-agent compatibility
+const MODEL_COSTS: Record<string, { input: number; output: number }> = {
+  // Gemini 3 (Latest)
+  "gemini-3-pro-preview": { input: 1.25, output: 10.00 },
+  // Gemini 2.5
+  "gemini-2.5-pro": { input: 1.25, output: 10.00 },
+  "gemini-2.5-flash": { input: 0.075, output: 0.30 },
+  "gemini-2.5-flash-lite": { input: 0.02, output: 0.10 },
+  // Gemini 2.0
+  "gemini-2.0-flash": { input: 0.075, output: 0.30 },
+  // OpenAI Direct
+  "gpt-4o": { input: 2.50, output: 10.00 },
+  "gpt-4o-mini": { input: 0.15, output: 0.60 },
+  "gpt-4-turbo": { input: 10.00, output: 30.00 },
+  "o1": { input: 15.00, output: 60.00 },
+  "o1-mini": { input: 3.00, output: 12.00 },
+  "o3-mini": { input: 1.10, output: 4.40 },
+  // OpenRouter Models (earn-agent compatible)
+  "anthropic/claude-3.5-sonnet": { input: 3.00, output: 15.00 },
+  "anthropic/claude-3-haiku": { input: 0.25, output: 1.25 },
+  "anthropic/claude-3-opus": { input: 15.00, output: 75.00 },
+  "meta-llama/llama-3.1-70b-instruct": { input: 0.35, output: 0.40 },
+  "meta-llama/llama-3.1-8b-instruct": { input: 0.055, output: 0.055 },
+  "mistralai/mistral-large": { input: 2.00, output: 6.00 },
+  "mistralai/codestral-latest": { input: 0.30, output: 0.90 },
+  "google/gemini-pro-1.5": { input: 1.25, output: 5.00 },
+  "google/gemini-flash-1.5": { input: 0.075, output: 0.30 },
+  "deepseek/deepseek-chat": { input: 0.14, output: 0.28 },
+  "deepseek/deepseek-coder": { input: 0.14, output: 0.28 },
+  // Claude direct (via OpenRouter)
+  "claude-3.5-sonnet": { input: 3.00, output: 15.00 },
+  "claude-3-haiku": { input: 0.25, output: 1.25 },
+};
+
+function estimateCost(modelId: string, inputTokens: number, outputTokens: number): number {
+  const costs = MODEL_COSTS[modelId] || { input: 1.00, output: 3.00 }; // Default fallback
+  return (inputTokens * costs.input + outputTokens * costs.output) / 1_000_000;
+}
+
 export async function generateReview(
   bountyContext: BountyContext,
-  codeContext: CodeContext
-): Promise<ReviewOutput & { tokensUsed: number; modelUsed: string }> {
+  codeContext: CodeContext,
+  requestedModel?: string
+): Promise<ReviewOutput & { tokensUsed: number; modelUsed: string; estimatedCost: number }> {
   const startTime = Date.now();
 
   const fileTreeString = fileTreeToString(codeContext.fileTree);
@@ -95,8 +202,8 @@ export async function generateReview(
     }
   );
 
-  // Default to Gemini since GEMINI_API_KEY is configured
-  const modelId = process.env.AI_MODEL || "gemini-2.0-flash";
+  // Use requested model or default
+  const modelId = requestedModel || process.env.AI_MODEL || "gemini-2.0-flash";
 
   const result = await generateObject({
     model: getModel(modelId),
@@ -111,11 +218,14 @@ export async function generateReview(
   // Estimate tokens (rough calculation)
   const inputTokens = Math.ceil((SYSTEM_PROMPT.length + userPrompt.length) / 4);
   const outputTokens = Math.ceil(JSON.stringify(result.object).length / 4);
+  const totalTokens = inputTokens + outputTokens;
+  const cost = estimateCost(modelId, inputTokens, outputTokens);
 
   return {
     ...result.object,
-    tokensUsed: inputTokens + outputTokens,
+    tokensUsed: totalTokens,
     modelUsed: modelId,
+    estimatedCost: cost,
   };
 }
 

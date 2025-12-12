@@ -3,6 +3,7 @@ import { z } from "zod";
 import { parseGitHubUrl } from "@/lib/github/client";
 import { fetchRepositoryData, fetchPRData } from "@/lib/github/fetcher";
 import { generateReview, type BountyContext, type CodeContext } from "@/lib/ai/reviewer";
+import { db, submissions, reviews } from "@/lib/db";
 
 // Input schema
 const AnalyzeRequestSchema = z.object({
@@ -11,6 +12,7 @@ const AnalyzeRequestSchema = z.object({
   bountyDescription: z.string().optional(),
   requirements: z.array(z.string()).optional(),
   techStack: z.array(z.string()).optional(),
+  model: z.string().optional(), // AI model to use
 });
 
 // Earn-compatible label mapping
@@ -76,11 +78,70 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    // Generate AI review
-    const review = await generateReview(bountyContext, codeContext);
+    // Generate AI review with selected model
+    const review = await generateReview(bountyContext, codeContext, data.model);
 
     // Calculate processing time
     const processingTimeMs = Date.now() - startTime;
+
+    // Save to database for history tracking
+    let savedSubmissionId: string | null = null;
+    try {
+      const [savedSubmission] = await db
+        .insert(submissions)
+        .values({
+          externalId: `demo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          listingId: `demo-${bountyContext.title.slice(0, 50).replace(/\s+/g, "-").toLowerCase()}`,
+          githubUrl: data.githubUrl,
+          githubType: githubInfo.type,
+          owner: githubInfo.owner,
+          repo: githubInfo.repo,
+          prNumber: githubInfo.prNumber,
+          bountyTitle: bountyContext.title,
+          status: "reviewed",
+          reviewedAt: new Date(),
+        })
+        .returning();
+
+      savedSubmissionId = savedSubmission.id;
+
+      // Save review with cost
+      await db.insert(reviews).values({
+        submissionId: savedSubmission.id,
+        overallScore: review.overallScore,
+        confidence: String(review.confidence),
+        requirementMatchScore: review.requirementMatch.score,
+        codeQualityScore: review.codeQuality.score,
+        completenessScore: review.completeness.score,
+        securityScore: review.security.score,
+        summary: review.summary,
+        detailedNotes: review.detailedNotes,
+        labels: review.suggestedLabels,
+        redFlags: review.redFlags,
+        matchedRequirements: review.requirementMatch.matchedRequirements,
+        missingRequirements: review.requirementMatch.missingRequirements,
+        modelUsed: review.modelUsed,
+        tokensUsed: review.tokensUsed,
+        processingTimeMs,
+        estimatedCost: String(review.estimatedCost),
+      });
+    } catch (dbError) {
+      // Don't fail the request if DB save fails, just log it
+      console.warn("Failed to save review to database:", dbError);
+    }
+
+    // Calculate technical metadata
+    const keyFilesAnalyzed = codeContext.keyFiles.map(f => ({
+      path: f.path,
+      language: f.language,
+      importance: f.importance,
+      lines: f.content.split('\n').length,
+      size: f.content.length,
+    }));
+
+    const totalLinesAnalyzed = keyFilesAnalyzed.reduce((sum, f) => sum + f.lines, 0);
+    const totalBytesAnalyzed = keyFilesAnalyzed.reduce((sum, f) => sum + f.size, 0);
+    const languagesDetected = [...new Set(keyFilesAnalyzed.map(f => f.language))];
 
     // Map to Earn-compatible format (submission.ai.evaluation)
     const earnEvaluation = {
@@ -125,13 +186,31 @@ export async function POST(request: NextRequest) {
         redFlags: review.redFlags,
       },
 
+      // Technical metadata for transparency
+      technical: {
+        filesAnalyzed: keyFilesAnalyzed,
+        totalFiles: keyFilesAnalyzed.length,
+        totalLinesAnalyzed,
+        totalBytesAnalyzed,
+        languagesDetected,
+        fileTreeSize: codeContext.fileTree.length,
+        ...(codeContext.type === "pr" ? {
+          diffSize: codeContext.diff.length,
+          commitsAnalyzed: codeContext.commits.length,
+          prTitle: codeContext.prTitle,
+          prDescription: codeContext.prDescription,
+        } : {}),
+      },
+
       // Metadata
       confidence: review.confidence,
       detailedNotes: review.detailedNotes,
       suggestedLabels: review.suggestedLabels,
       modelUsed: review.modelUsed,
       tokensUsed: review.tokensUsed,
+      estimatedCost: review.estimatedCost,
       processingTimeMs,
+      submissionId: savedSubmissionId,
     };
 
     return NextResponse.json({

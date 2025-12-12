@@ -1,0 +1,337 @@
+{
+  "description": "Synthetic historical submissions for accuracy validation. Based on typical Superteam Earn bounty patterns.",
+  "submissions": [
+    {
+      "id": "hist-001",
+      "githubUrl": "https://github.com/solana-labs/solana-program-library",
+      "bountyTitle": "Token Program Implementation",
+      "bountyDescription": "Build a Solana token program with mint, transfer, and burn functionality",
+      "requirements": [
+        "Implement SPL token mint functionality",
+        "Add transfer instruction",
+        "Implement burn mechanism",
+        "Include proper PDA validation",
+        "Add comprehensive tests"
+      ],
+      "techStack": ["Rust", "Anchor", "Solana"],
+      "humanLabel": "Shortlisted",
+      "humanScore": 92,
+      "humanNotes": "Excellent implementation with complete SPL token functionality. Well-tested and documented."
+    },
+    {
+      "id": "hist-002",
+      "githubUrl": "https://github.com/coral-xyz/anchor",
+      "bountyTitle": "NFT Marketplace Smart Contract",
+      "bountyDescription": "Create a decentralized NFT marketplace on Solana",
+      "requirements": [
+        "List NFT for sale",
+        "Buy NFT functionality",
+        "Cancel listing option",
+        "Royalty distribution",
+        "Escrow mechanism"
+      ],
+      "techStack": ["Rust", "Anchor", "Metaplex"],
+      "humanLabel": "High_Quality",
+      "humanScore": 85,
+      "humanNotes": "Good implementation but missing some edge case handling in royalty distribution."
+    },
+    {
+      "id": "hist-003",
+      "githubUrl": "https://github.com/metaplex-foundation/metaplex-program-library",
+      "bountyTitle": "DeFi Lending Protocol",
+      "bountyDescription": "Build a lending protocol with collateral management",
+      "requirements": [
+        "Deposit collateral",
+        "Borrow against collateral",
+        "Liquidation mechanism",
+        "Interest rate calculation",
+        "Oracle integration"
+      ],
+      "techStack": ["Rust", "Anchor", "Pyth"],
+      "humanLabel": "High_Quality",
+      "humanScore": 78,
+      "humanNotes": "Solid implementation. Interest rate model needs refinement."
+    },
+    {
+      "id": "hist-004",
+      "githubUrl": "https://github.com/project-serum/serum-dex",
+      "bountyTitle": "DEX Order Book Implementation",
+      "bountyDescription": "Implement a central limit order book for token trading",
+      "requirements": [
+        "Place limit orders",
+        "Market order execution",
+        "Order cancellation",
+        "Matching engine",
+        "Fee structure"
+      ],
+      "techStack": ["Rust", "Solana"],
+      "humanLabel": "Shortlisted",
+      "humanScore": 95,
+      "humanNotes": "Outstanding implementation with highly optimized matching engine."
+    },
+    {
+      "id": "hist-005",
+      "githubUrl": "https://github.com/solana-labs/solana",
+      "bountyTitle": "Simple Token Airdrop Tool",
+      "bountyDescription": "Build a CLI tool for batch token airdrops",
+      "requirements": [
+        "CSV import for recipients",
+        "Batch transaction support",
+        "Progress tracking",
+        "Error handling"
+      ],
+      "techStack": ["TypeScript", "Node.js", "@solana/web3.js"],
+      "humanLabel": "Mid_Quality",
+      "humanScore": 65,
+      "humanNotes": "Basic functionality works but lacks proper error handling and rate limiting."
+    },
+    {
+      "id": "hist-006",
+      "githubUrl": "https://github.com/anza-xyz/agave",
+      "bountyTitle": "Wallet Connect Integration",
+      "bountyDescription": "Add WalletConnect support to existing dApp",
+      "requirements": [
+        "WalletConnect v2 support",
+        "Session management",
+        "Multi-wallet support",
+        "Mobile deep linking"
+      ],
+      "techStack": ["TypeScript", "React", "Next.js"],
+      "humanLabel": "High_Quality",
+      "humanScore": 82,
+      "humanNotes": "Clean integration with good mobile support. Minor UI polish needed."
+    },
+    {
+      "id": "hist-007",
+      "githubUrl": "https://github.com/solana-developers/program-examples",
+      "bountyTitle": "Governance Dashboard Frontend",
+      "bountyDescription": "Create a frontend for DAO governance voting",
+      "requirements": [
+        "Proposal display",
+        "Vote casting UI",
+        "Voting power display",
+        "Results visualization"
+      ],
+      "techStack": ["React", "TypeScript", "TailwindCSS"],
+      "humanLabel": "Mid_Quality",
+      "humanScore": 58,
+      "humanNotes": "UI is functional but rough around edges. Missing responsive design."
+    },
+    {
+      "id": "hist-008",
+      "githubUrl": "https://github.com/clockwork-xyz/clockwork",
+      "bountyTitle": "Automated Trading Bot",
+      "bountyDescription": "Build an automated DCA bot for Solana tokens",
+      "requirements": [
+        "Scheduled purchases",
+        "Configurable intervals",
+        "Slippage protection",
+        "Transaction history"
+      ],
+      "techStack": ["TypeScript", "Clockwork", "Jupiter"],
+      "humanLabel": "Low_Quality",
+      "humanScore": 35,
+      "humanNotes": "Incomplete implementation. Scheduling works but trading logic is broken."
+    },
+    {
+      "id": "hist-009",
+      "githubUrl": "https://github.com/jito-foundation/jito-solana",
+      "bountyTitle": "MEV Protection Analysis Tool",
+      "bountyDescription": "Build a tool to analyze MEV exposure in transactions",
+      "requirements": [
+        "Transaction parsing",
+        "MEV detection heuristics",
+        "Report generation",
+        "Historical analysis"
+      ],
+      "techStack": ["Python", "Rust"],
+      "humanLabel": "Needs_Review",
+      "humanScore": 50,
+      "humanNotes": "Interesting approach but detection accuracy is low. Needs validation."
+    },
+    {
+      "id": "hist-010",
+      "githubUrl": "https://github.com/helium/helium-program-library",
+      "bountyTitle": "Token Vesting Contract",
+      "bountyDescription": "Implement a token vesting schedule smart contract",
+      "requirements": [
+        "Linear vesting",
+        "Cliff period support",
+        "Revocable option",
+        "Multiple beneficiaries"
+      ],
+      "techStack": ["Rust", "Anchor"],
+      "humanLabel": "Shortlisted",
+      "humanScore": 88,
+      "humanNotes": "Well-structured code with comprehensive vesting options. Great test coverage."
+    },
+    {
+      "id": "hist-011",
+      "githubUrl": "https://github.com/phantom/sandbox",
+      "bountyTitle": "Portfolio Tracker Widget",
+      "bountyDescription": "Create an embeddable portfolio tracking widget",
+      "requirements": [
+        "Token balance display",
+        "Price fetching",
+        "PnL calculation",
+        "Responsive design"
+      ],
+      "techStack": ["React", "TypeScript"],
+      "humanLabel": "Mid_Quality",
+      "humanScore": 62,
+      "humanNotes": "Works but UI needs improvement. Price updates are slow."
+    },
+    {
+      "id": "hist-012",
+      "githubUrl": "https://github.com/solflare-wallet/solflare-snap",
+      "bountyTitle": "Staking Dashboard",
+      "bountyDescription": "Build a validator staking dashboard",
+      "requirements": [
+        "Validator list with APY",
+        "Stake/unstake UI",
+        "Rewards tracking",
+        "Commission comparison"
+      ],
+      "techStack": ["React", "Next.js", "TypeScript"],
+      "humanLabel": "High_Quality",
+      "humanScore": 80,
+      "humanNotes": "Feature-complete with good UX. Could improve loading states."
+    },
+    {
+      "id": "hist-013",
+      "githubUrl": "https://github.com/squads-protocol/squads-mpl",
+      "bountyTitle": "Multisig Transaction Builder",
+      "bountyDescription": "Create a UI for building multisig transactions",
+      "requirements": [
+        "Transaction composition",
+        "Signature collection",
+        "Execution tracking",
+        "Member management"
+      ],
+      "techStack": ["TypeScript", "React", "Squads SDK"],
+      "humanLabel": "High_Quality",
+      "humanScore": 84,
+      "humanNotes": "Excellent UX for complex multisig flows. Well tested."
+    },
+    {
+      "id": "hist-014",
+      "githubUrl": "https://github.com/switchboard-xyz/switchboard",
+      "bountyTitle": "Price Feed Aggregator",
+      "bountyDescription": "Build a price aggregation service from multiple oracles",
+      "requirements": [
+        "Multi-oracle support",
+        "Median calculation",
+        "Outlier detection",
+        "WebSocket updates"
+      ],
+      "techStack": ["TypeScript", "Node.js", "WebSocket"],
+      "humanLabel": "Shortlisted",
+      "humanScore": 91,
+      "humanNotes": "Robust implementation with excellent error handling and failover."
+    },
+    {
+      "id": "hist-015",
+      "githubUrl": "https://github.com/marinade-finance/liquid-staking-program",
+      "bountyTitle": "Liquid Staking Integration",
+      "bountyDescription": "Integrate liquid staking into existing protocol",
+      "requirements": [
+        "Stake to mSOL",
+        "mSOL utilization",
+        "Withdrawal flow",
+        "APY display"
+      ],
+      "techStack": ["Rust", "TypeScript", "Marinade SDK"],
+      "humanLabel": "High_Quality",
+      "humanScore": 76,
+      "humanNotes": "Integration works well. Could add more user feedback during transactions."
+    },
+    {
+      "id": "hist-016",
+      "githubUrl": "https://github.com/tensor-foundation/marketplace",
+      "bountyTitle": "NFT Rarity Calculator",
+      "bountyDescription": "Build a rarity score calculator for NFT collections",
+      "requirements": [
+        "Trait frequency analysis",
+        "Rarity score algorithm",
+        "Collection import",
+        "Ranking display"
+      ],
+      "techStack": ["TypeScript", "Python"],
+      "humanLabel": "Mid_Quality",
+      "humanScore": 55,
+      "humanNotes": "Basic rarity calculation works. Algorithm could be more sophisticated."
+    },
+    {
+      "id": "hist-017",
+      "githubUrl": "https://github.com/orca-so/whirlpools",
+      "bountyTitle": "Concentrated Liquidity Position Manager",
+      "bountyDescription": "Build a UI for managing CLMM positions",
+      "requirements": [
+        "Position creation",
+        "Range adjustment",
+        "Fee collection",
+        "IL calculation"
+      ],
+      "techStack": ["React", "TypeScript", "Orca SDK"],
+      "humanLabel": "Shortlisted",
+      "humanScore": 89,
+      "humanNotes": "Excellent implementation with clear visualization of positions and ranges."
+    },
+    {
+      "id": "hist-018",
+      "githubUrl": "https://github.com/jupiter-project/jupiter-api-client",
+      "bountyTitle": "Swap Aggregator CLI",
+      "bountyDescription": "Command-line tool for token swaps",
+      "requirements": [
+        "Best route finding",
+        "Slippage configuration",
+        "Transaction simulation",
+        "Priority fee options"
+      ],
+      "techStack": ["TypeScript", "Node.js", "Jupiter API"],
+      "humanLabel": "High_Quality",
+      "humanScore": 83,
+      "humanNotes": "Well-designed CLI with good defaults. Documentation is thorough."
+    },
+    {
+      "id": "hist-019",
+      "githubUrl": "https://github.com/drift-labs/protocol-v2",
+      "bountyTitle": "Perpetuals Trading Interface",
+      "bountyDescription": "Build a perps trading UI",
+      "requirements": [
+        "Order placement",
+        "Position management",
+        "PnL display",
+        "Funding rate info"
+      ],
+      "techStack": ["React", "TypeScript", "Drift SDK"],
+      "humanLabel": "Spam",
+      "humanScore": 15,
+      "humanNotes": "Mostly copy-pasted from examples. Does not meet requirements."
+    },
+    {
+      "id": "hist-020",
+      "githubUrl": "https://github.com/pyth-network/pyth-sdk-solana",
+      "bountyTitle": "Oracle Price Display Component",
+      "bountyDescription": "Create a reusable price display component",
+      "requirements": [
+        "Real-time updates",
+        "Confidence interval",
+        "Historical chart",
+        "Multiple assets"
+      ],
+      "techStack": ["React", "TypeScript", "Pyth SDK"],
+      "humanLabel": "High_Quality",
+      "humanScore": 79,
+      "humanNotes": "Clean component design. Historical chart could use more features."
+    }
+  ],
+  "labelMapping": {
+    "Shortlisted": { "minScore": 85, "description": "Top-tier submissions for immediate consideration" },
+    "High_Quality": { "minScore": 70, "description": "Good quality, minor improvements needed" },
+    "Mid_Quality": { "minScore": 50, "description": "Acceptable but needs work" },
+    "Low_Quality": { "minScore": 30, "description": "Significant issues, major revision needed" },
+    "Needs_Review": { "minScore": 40, "description": "Requires human review due to uncertainty" },
+    "Spam": { "minScore": 0, "description": "Low effort or irrelevant submission" }
+  }
+}

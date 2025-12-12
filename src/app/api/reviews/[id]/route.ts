@@ -36,3 +36,40 @@ export async function GET(
     );
   }
 }
+
+// DELETE /api/reviews/[id] - Delete a review and its submission
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+
+    // The id here is the submissionId from the demo
+    // First try to delete by submission id (cascade will delete reviews)
+    const deleted = await db
+      .delete(submissions)
+      .where(eq(submissions.id, id))
+      .returning();
+
+    if (deleted.length === 0) {
+      // Try by review id
+      const reviewDeleted = await db
+        .delete(reviews)
+        .where(eq(reviews.id, id))
+        .returning();
+
+      if (reviewDeleted.length === 0) {
+        return NextResponse.json({ error: "Review not found" }, { status: 404 });
+      }
+    }
+
+    return NextResponse.json({ success: true, message: "Review deleted" });
+  } catch (error) {
+    console.error("Error deleting review:", error);
+    return NextResponse.json(
+      { error: "Failed to delete review" },
+      { status: 500 }
+    );
+  }
+}
