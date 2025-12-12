@@ -1,9 +1,18 @@
 import { generateObject } from "ai";
-import { openai } from "@ai-sdk/openai";
-import { google } from "@ai-sdk/google";
+import { createOpenAI } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { ReviewSchema, type ReviewOutput } from "./schemas";
 import { SYSTEM_PROMPT, buildUserPrompt } from "./prompts";
 import type { KeyFile, FileTreeNode } from "../db/schema";
+
+// Create provider instances with explicit API keys
+const openaiProvider = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const googleProvider = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY,
+});
 
 // Model provider detection
 function getModelProvider(modelId: string): "openai" | "google" {
@@ -17,9 +26,9 @@ function getModelProvider(modelId: string): "openai" | "google" {
 function getModel(modelId: string) {
   const provider = getModelProvider(modelId);
   if (provider === "google") {
-    return google(modelId);
+    return googleProvider(modelId);
   }
-  return openai(modelId);
+  return openaiProvider(modelId);
 }
 
 export interface BountyContext {
@@ -91,8 +100,10 @@ export async function generateReview(
     }
   );
 
-  // Default model - GPT-4o is the latest and most capable
-  const DEFAULT_MODEL = "gpt-4o";
+  // Default model - Use Gemini as fallback since it's more widely configured
+  const DEFAULT_MODEL = process.env.OPENAI_API_KEY?.startsWith("sk-") && !process.env.OPENAI_API_KEY?.startsWith("sk-or-")
+    ? "gpt-4o"
+    : "gemini-1.5-pro";
   const modelId = process.env.AI_MODEL || DEFAULT_MODEL;
 
   const result = await generateObject({

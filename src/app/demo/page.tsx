@@ -22,6 +22,7 @@ import {
 
 interface ReviewResult {
   success: boolean;
+  warning?: string;
   evaluation: {
     finalLabel: string;
     notes: string;
@@ -89,6 +90,7 @@ function DemoContent() {
   const [result, setResult] = useState<ReviewResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState("");
+  const [useDemoMode, setUseDemoMode] = useState(false);
 
   // Auto-analyze if URL is provided
   useEffect(() => {
@@ -120,6 +122,7 @@ function DemoContent() {
           requirements: requirements
             ? requirements.split("\n").filter((r) => r.trim())
             : ["Good code quality", "Security best practices", "Complete implementation"],
+          demoMode: useDemoMode,
         }),
       });
 
@@ -243,6 +246,19 @@ function DemoContent() {
                 />
               </div>
 
+              {/* Demo Mode Toggle */}
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={useDemoMode}
+                  onChange={(e) => setUseDemoMode(e.target.checked)}
+                  className="w-5 h-5 rounded border-gray-700 bg-gray-900/50 text-[#DC1FFF] focus:ring-[#DC1FFF]/50"
+                />
+                <span className="text-sm text-gray-400">
+                  Demo mode <span className="text-gray-600">(show sample output without AI)</span>
+                </span>
+              </label>
+
               {/* Error */}
               {error && (
                 <div className="p-4 rounded-xl bg-red-400/10 border border-red-400/30 text-red-400 text-sm flex items-center gap-2">
@@ -310,6 +326,17 @@ function DemoContent() {
               </div>
             ) : result ? (
               <div className="gradient-border p-6 space-y-6">
+                {/* Demo Mode Warning */}
+                {result.warning && (
+                  <div className="p-4 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-400 text-sm flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="block mb-1">Demo Mode</strong>
+                      <span className="text-amber-400/80">{result.warning}</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Header */}
                 <div className="flex items-start justify-between">
                   <div>
