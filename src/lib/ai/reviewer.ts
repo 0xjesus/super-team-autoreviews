@@ -91,8 +91,8 @@ export async function generateReview(
     }
   );
 
-  // Default model - GPT-5.2 is the latest and most capable
-  const DEFAULT_MODEL = "gpt-5.2-2025-12-11";
+  // Default model - GPT-4o is the latest and most capable
+  const DEFAULT_MODEL = "gpt-4o";
   const modelId = process.env.AI_MODEL || DEFAULT_MODEL;
 
   const result = await generateObject({
