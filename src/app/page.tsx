@@ -776,9 +776,13 @@ export default function Home() {
       <header className="border-b border-gray-800 bg-black/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl gradient-button flex items-center justify-center">
-              <Bot className="w-5 h-5 text-white" />
-            </div>
+            {/* Superteam Logo */}
+            <img
+              src="https://framerusercontent.com/images/VO6725CCRyeL9eo3Udmp4318Po.png"
+              alt="Superteam"
+              className="h-8 w-auto"
+            />
+            <div className="h-6 w-px bg-gray-700" />
             <div>
               <h1 className="font-bold">GitHub Auto-Review</h1>
               <p className="text-[10px] text-gray-500">for Superteam Earn</p>
