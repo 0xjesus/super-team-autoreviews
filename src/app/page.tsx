@@ -784,18 +784,26 @@ export default function Home() {
               <p className="text-[10px] text-gray-500">for Superteam Earn</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* Documentation Button - Prominent */}
+            <a
+              href="/docs"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg gradient-button text-white text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <BookOpen className="w-4 h-4" />
+              Documentation
+            </a>
             <button
               onClick={() => {
                 setShowSavedReviews(true);
                 fetchSavedReviews();
               }}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#DC1FFF]/10 border border-[#DC1FFF]/30 text-xs text-[#DC1FFF] hover:bg-[#DC1FFF]/20 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-xs text-gray-300 hover:bg-gray-700 transition-colors"
             >
               <History className="w-3 h-3" />
               Saved Reviews
             </button>
-            <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#00FFA3]/10 border border-[#00FFA3]/30 text-xs">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#00FFA3]/10 border border-[#00FFA3]/30 text-xs">
               <div className="w-2 h-2 rounded-full bg-[#00FFA3] animate-pulse" />
               <span className="text-[#00FFA3]">Live Demo</span>
             </div>
@@ -1524,33 +1532,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Integration Info - Compact */}
-        {!result && (
-          <div className="max-w-7xl mx-auto mt-6">
-            <div className="gradient-border p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Zap className="w-4 h-4 text-amber-400" />
-                <h3 className="font-semibold text-xs">Integration with Earn</h3>
-              </div>
-              <div className="grid grid-cols-4 gap-2 text-center text-[10px]">
-                {[
-                  { num: 1, label: "User Submits", desc: "GitHub URL to bounty", color: "#DC1FFF" },
-                  { num: 2, label: "BullMQ Event", desc: "autoReviewGitHubSubmission", color: "#00C2FF" },
-                  { num: 3, label: "AI Analysis", desc: selectedModel, color: "#00FFA3" },
-                  { num: 4, label: "Dashboard Updated", desc: "submission.ai.evaluation", color: "#F59E0B" },
-                ].map(({ num, label, desc, color }) => (
-                  <div key={num} className="p-2 rounded-lg bg-gray-800/30">
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center mx-auto mb-1 text-[10px] font-bold" style={{ backgroundColor: `${color}20`, color }}>
-                      {num}
-                    </div>
-                    <div className="font-medium">{label}</div>
-                    <div className="text-gray-500 text-[9px]">{desc}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Footer */}
@@ -1561,29 +1542,22 @@ export default function Home() {
               <Bot className="w-4 h-4 text-[#DC1FFF]" />
               <span className="text-xs text-gray-400">GitHub Auto-Review for Superteam Earn</span>
             </div>
-            <div className="flex items-center gap-4 text-[11px]">
+            <div className="flex items-center gap-3 text-[11px]">
               <a
                 href="/docs"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#00C2FF]/10 border border-[#00C2FF]/30 text-[#00C2FF] hover:bg-[#00C2FF]/20 transition-colors"
               >
                 <BookOpen className="w-3 h-3" />
-                Integration Docs
+                Documentation
               </a>
               <a
-                href="https://github.com/0xJesus/super-team-autoreviews"
+                href="https://github.com/0xjesus/super-team-autoreviews"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
               >
                 <Github className="w-3 h-3" />
                 Source Code
-              </a>
-              <span className="text-gray-600">|</span>
-              <a href="https://earn.superteam.fun" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors">
-                Earn Platform
-              </a>
-              <a href="https://github.com/SuperteamDAO/earn" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors">
-                Earn Repo
               </a>
             </div>
           </div>
